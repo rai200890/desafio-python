@@ -1,6 +1,10 @@
 from flask import jsonify
-from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from sqlalchemy.exc import (
+    SQLAlchemyError,
+    IntegrityError
+)
 from webargs.core import ValidationError
+from flask_jwt import JWT
 
 from user_api.resources.user import UserResource
 from user_api import (
@@ -8,9 +12,26 @@ from user_api import (
     api,
     db
 )
+from user_api.auth import (
+    generate_jwt_token,
+    generate_jwt_payload,
+    generate_jwt_headers,
+    generate_auth_response,
+    generate_error_response,
+    authenticate,
+    load_identity
+)
 
 
 api.add_resource(UserResource, "/users")
+
+
+jwt = JWT(app, authenticate, load_identity)
+jwt.jwt_encode_callback = generate_jwt_token
+jwt.jwt_payload_callback = generate_jwt_payload
+jwt.jwt_headers_callback = generate_jwt_headers
+jwt.auth_response_callback = generate_auth_response
+jwt.jwt_error_callback = generate_error_response
 
 
 @app.route("/healthcheck")
