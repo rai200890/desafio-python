@@ -1,38 +1,41 @@
-
 from flask import jsonify
-from flask_jwt import JWT
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
+from webargs.core import ValidationError
 
-from user_api import app, db
-from user_api.models import User
-
-
-def authenticate(username, password):
-    user = User.query.filter_by(username=username).first()
-    if user and user.verify_password(password):
-        return user
-
-
-def identity_loader(payload):
-    user_id = payload['identity']
-    try:
-        user = User.query.filter_by(id=user_id).one()
-        return user
-    except Exception as e:
-        app.logger.error(e)
+from user_api.resources.user import UserResource
+from user_api import (
+    user_api_app as app,
+    api,
+    db
+)
 
 
-jwt = JWT(app, authenticate, identity_loader)
+api.add_resource(UserResource, "/users")
 
 
 @app.route("/healthcheck")
 def healthcheck():
-    result = db.engine.execute("SELECT 1;").fetchone()
-    return "DB: OK {}".format(result)
+    try:
+        db.engine.execute("SELECT 1;").fetchone()
+        return jsonify({"status": "OK"})
+    except SQLAlchemyError:
+        return jsonify({"status": "DOWN"})
 
 
 @app.errorhandler(404)
 def handle_not_found(err):
-    return jsonify({"errors": 'Resource not found'}), 404
+    return jsonify({"mensagem": 'Resource not found'}), 404
+
+
+@app.errorhandler(IntegrityError)
+def handle_integrity_error(err):
+    return jsonify({"messagem": str(err)}), 422
+
+
+@app.errorhandler(ValidationError)
+def handle_unprocessable_entity(err):
+    messages = ["{} {}".format(key, ",".join(value)) for key, value in err.messages.items()]
+    return jsonify({"mensagem": "; ".join(messages)}), 400
 
 
 if __name__ == "__main__":

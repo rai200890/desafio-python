@@ -1,4 +1,6 @@
 from os import environ
+from datetime import timedelta
+
 import pytest
 
 from user_api.app import app as _app
@@ -6,10 +8,11 @@ from user_api import db as _db
 
 
 def pytest_sessionstart(session):
-    _app.config['SQLALCHEMY_DATABASE_URI'] = environ.get("SQLALCHEMY_DATABASE_URI_TEST")
+    _app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('SQLALCHEMY_DATABASE_URI_TEST')
     _app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     _app.config['TESTING'] = True
     _app.config['SECRET_KEY'] = "super-secret"
+    _app.config['JWT_EXPIRATION_DELTA'] = timedelta(seconds=300)
     _db.drop_all()
     _db.create_all()
 
