@@ -28,6 +28,12 @@ user_api_app.config['JWT_AUTH_HEADER_PREFIX'] = "Bearer"
 user_api_app.config['JWT_EXPIRATION_DELTA'] = timedelta(seconds=float(environ.get('EXPIRATION_DELTA', 300)))
 user_api_app.config['JWT_AUTH_URL_RULE'] = "/api/auth"
 user_api_app.config['JWT_AUTH_USERNAME_KEY'] = 'email'
+user_api_app.config['JWT_VERIFY_EXPIRATION'] = False
 
 db = SQLAlchemy(user_api_app)
-api = Api(user_api_app, prefix="/api", catch_all_404s=False)
+
+
+api = Api(user_api_app, prefix="/api", catch_all_404s=False, errors={
+         'JWTError': None,
+         'SQLAlchemyError': None
+})

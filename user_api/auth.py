@@ -5,7 +5,6 @@ from flask import (
     jsonify
 )
 from jwt import encode
-from flask_jwt import JWTError
 from sqlalchemy.exc import (
     SQLAlchemyError,
     IntegrityError

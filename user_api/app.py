@@ -26,10 +26,14 @@ jwt.jwt_encode_callback = generate_jwt_token
 jwt.jwt_payload_callback = generate_jwt_payload
 jwt.jwt_headers_callback = generate_jwt_headers
 jwt.auth_response_callback = generate_auth_response
-jwt.jwt_error_callback = generate_error_response
 
 
-@user_api_app.route("/healthcheck")
+@jwt.jwt_error_handler
+def error_handler(e):
+    return generate_error_response(e)
+
+
+@user_api_app.route("/api/healthcheck")
 def healthcheck():
     try:
         db.engine.execute("SELECT 1;").fetchone()
@@ -41,11 +45,6 @@ def healthcheck():
 @user_api_app.errorhandler(404)
 def handle_not_found(err):
     return jsonify({"mensagem": 'Não encontrado'}), 404
-
-
-@user_api_app.errorhandler(500)
-def handle_internal_server_error(err):
-    return jsonify({"mensagem": 'Internal Server Error'}), 500
 
 
 @user_api_app.errorhandler(422)

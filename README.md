@@ -66,4 +66,63 @@ Todas as mensagens de erro devem ter o formato:
 ## Requisitos desejáveis
 * JWT como token
 * Testes unitários
-* Criptogafia não reversível (hash) na senha e no token
+* Criptografia não reversível (hash) na senha e no token
+
+------
+
+##Install
+
+### OS dependencies
+
+```bash
+  make setup-os
+```
+
+### Project's dependencies (Using virtualenv)
+
+```bash
+  make setup
+  python manage.py recreate_database #recreate database tables
+```
+
+Make sure to change *.env* with your database credentials and custom configuration
+
+```bash
+  touch user_api.db #create sqlite database
+  python manage.py recreate_database #recreate database tables
+```
+
+##Run
+
+```bash
+  make debug #run server at localhost:5000 in debug mode
+  make run #run server at localhost:5000
+```
+
+##Test
+
+```bash
+  make test #run unit tests
+  make flake8 #run pep8 verifications
+```
+
+-----
+
+##Endpoints
+
+### Perfil do usuário
+**GET** */users/id*
+
+ENTRADA: ID de usuário no path
+         HEADERS: "Authorization: Bearer *token*"
+
+Exemplo:
+```bash
+  curl -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0Nzc5ODMzMTMsImlkZW50aXR5IjoxLCJpYXQiOjE0Nzc5ODE1MTMsIm5iZiI6MTQ3Nzk4MTUxM30.Ob7KTc_jcel2yc2oc4AavGAj-YY3yAG8AEtMxhf9O0M" https://user-api-app.herokuapp.com/api/users/1
+```
+### Criação de usuário
+**POST** */users*
+
+
+### Login
+**POST** */api/auth*s
