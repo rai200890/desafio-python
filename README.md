@@ -82,13 +82,12 @@ Todas as mensagens de erro devem ter o formato:
 
 ```bash
   make setup
-  python manage.py recreate_database #recreate database tables
 ```
 
 Make sure to change *.env* with your database credentials and custom configuration
 
 ```bash
-  touch user_api.db #create sqlite database
+  touch user_api.db #create sqlite database file
   python manage.py recreate_database #recreate database tables
 ```
 
@@ -144,7 +143,7 @@ Exemplo:
 
 **POST** */api/auth*
 
-Example:
+Exemplo:
 
 ```bash
   curl -H "Content-Type: application/json" -X POST -d '{"password":"raissa", "email": "rai200890@gmail.com"}' https://user-api-app.herokuapp.com/api/auth
