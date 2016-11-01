@@ -110,19 +110,42 @@ Make sure to change *.env* with your database credentials and custom configurati
 
 ##Endpoints
 
-### Perfil do usuário
-**GET** */users/id*
+## Healthcheck
 
-ENTRADA: ID de usuário no path
-         HEADERS: "Authorization: Bearer *token*"
+**GET** */api/healthcheck*
 
 Exemplo:
+
+```bash
+  curl https://user-api-app.herokuapp.com/api/healthcheck
+```
+
+### Perfil do usuário
+
+**GET** */users/id*
+
+Exemplo:
+
 ```bash
   curl -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0Nzc5ODMzMTMsImlkZW50aXR5IjoxLCJpYXQiOjE0Nzc5ODE1MTMsIm5iZiI6MTQ3Nzk4MTUxM30.Ob7KTc_jcel2yc2oc4AavGAj-YY3yAG8AEtMxhf9O0M" https://user-api-app.herokuapp.com/api/users/1
 ```
+
 ### Criação de usuário
+
 **POST** */users*
 
+Exemplo:
+
+```bash
+  curl -H "Content-Type: application/json" -X POST -d '{"password":"raissa", "email": "rai200890@gmail.com", "name": "Raissa"}' https://user-api-app.herokuapp.com/api/users
+```
 
 ### Login
-**POST** */api/auth*s
+
+**POST** */api/auth*
+
+Example:
+
+```bash
+  curl -H "Content-Type: application/json" -X POST -d '{"password":"raissa", "email": "rai200890@gmail.com"}' https://user-api-app.herokuapp.com/api/auth
+```

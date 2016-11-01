@@ -9,7 +9,7 @@ setup: venv #install development dependencies
 	venv/bin/pip install -r requirements-dev.txt
 
 setup-os: #install os requirements
-	sudo apt-get install -y python3-dev python-virtualenv libpq-dev
+	sudo apt-get install -y python3-dev python-virtualenv libmysqlclient-dev libpq-dev
 
 install: #install project's dependencies
 	venv/bin/pip install -r requirements.txt
