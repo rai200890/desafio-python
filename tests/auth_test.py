@@ -37,14 +37,16 @@ def test_authenticate_invalid_credentials(user):
     assert response is None
 
 
-def test_load_identity_existing_user(user):
-    response = load_identity({"identity": user.id})
-    assert response == user
+def test_load_identity_existing_user(api_test_client, user):
+    with api_test_client.application.test_request_context():
+        response = load_identity({"identity": user.id})
+        assert response == user
 
 
-def test_load_identity_inexistent_user():
-    response = load_identity({"identity": 0})
-    assert response is None
+def test_load_identity_inexistent_user(api_test_client):
+    with api_test_client.application.test_request_context():
+        response = load_identity({"identity": 0})
+        assert response is None
 
 
 def test_generate_auth_response(token, user):

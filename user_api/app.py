@@ -1,10 +1,5 @@
 from flask import jsonify
-from flask import got_request_exception
-from sqlalchemy.exc import (
-    SQLAlchemyError,
-    IntegrityError
-)
-from marshmallow.exceptions import ValidationError
+from sqlalchemy.exc import SQLAlchemyError
 from flask_jwt import JWT
 from user_api.resources.user import UserResource
 from user_api import (
@@ -23,7 +18,7 @@ from user_api.auth import (
 )
 
 
-api.add_resource(UserResource, "/users")
+api.add_resource(UserResource, "/users", "/users/<int:id>")
 
 
 jwt = JWT(user_api_app, authenticate, load_identity)
@@ -45,7 +40,12 @@ def healthcheck():
 
 @user_api_app.errorhandler(404)
 def handle_not_found(err):
-    return jsonify({"mensagem": 'Resource not found'}), 404
+    return jsonify({"mensagem": 'Não encontrado'}), 404
+
+
+@user_api_app.errorhandler(500)
+def handle_internal_server_error(err):
+    return jsonify({"mensagem": 'Internal Server Error'}), 500
 
 
 @user_api_app.errorhandler(422)
@@ -55,4 +55,4 @@ def handle_unprocessable_entity(err):
 
 
 if __name__ == "__main__":
-    app.run()
+    user_api_app.run()

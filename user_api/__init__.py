@@ -30,4 +30,4 @@ user_api_app.config['JWT_AUTH_URL_RULE'] = "/api/auth"
 user_api_app.config['JWT_AUTH_USERNAME_KEY'] = 'email'
 
 db = SQLAlchemy(user_api_app)
-api = Api(user_api_app, prefix="/api")
+api = Api(user_api_app, prefix="/api", catch_all_404s=False)

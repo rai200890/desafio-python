@@ -1,10 +1,10 @@
 from datetime import datetime
 
-from flask import current_app, jsonify, abort
+from flask import current_app
+from flask_jwt import jwt_required
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
-from webargs.flaskparser import use_kwargs, FlaskParser
-from marshmallow.exceptions import ValidationError
+from webargs.flaskparser import use_kwargs
 
 from user_api.resources.schemas import (
     UserRequestSchema,
@@ -19,6 +19,15 @@ from user_api.auth import generate_jwt_token
 
 
 class UserResource(Resource):
+
+    @jwt_required()
+    def get(self, id):
+        user = User.query.filter_by(id=id).first()
+        if user:
+            return UserSchema().dump(user).data
+        else:
+            current_app.logger.warn('User with id {} not found'.format(id))
+            return {"mensagem": "Usuário não encontrado"}, 404
 
     @use_kwargs(UserRequestSchema())
     def post(self, **kwargs):
@@ -40,4 +49,4 @@ class UserResource(Resource):
         except IntegrityError as err:
             db.session.rollback()
             current_app.logger.error(err)
-            return {"messagem": 'O usuario não pode ser criado'}, 422
+            return {"mensagem": 'O usuário não pôde ser criado'}, 422

@@ -2,9 +2,11 @@ from datetime import datetime
 
 from flask import (
     current_app,
-    jsonify
+    jsonify,
+    request
 )
 from jwt import encode
+from flask_jwt import JWTError
 from sqlalchemy.exc import (
     SQLAlchemyError,
     IntegrityError
@@ -63,16 +65,31 @@ def load_identity(payload):
     user_id = payload['identity']
     try:
         user = User.query.filter_by(id=user_id).one()
+
+        token = request.headers.get('Authorization', '').\
+            replace(current_app.config['JWT_AUTH_HEADER_PREFIX'], '').replace(' ', '')
+        if token and user.token != token and request.path != current_app.config['JWT_AUTH_URL_RULE']:
+            raise JWTError('Invalid token', 'Token was refreshed')
+
         return user
     except SQLAlchemyError:
         current_app.logger.error('User with id {} not found'.format(user_id))
 
 
 def generate_error_response(err):
-    ERRORS = {'Bad Request': 'Usuário e/ou senha inválidos',
-              'Invalid JWT header': 'Token inválido',
-              'Authorization Required': 'Token não enviado',
-              'Invalid token': 'Token inválido',
-              'Invalid JWT': 'Usuário não encontrado'}
-    message = ERRORS.get(err.error) or err.error
-    return jsonify({"mensagem": message}), err.status_code
+    ERRORS = {
+        ('Bad Request', 'Invalid credentials'):
+            {"message": 'Usuário e/ou senha inválidos', "status_code": 401},
+        ('Invalid token', 'Token was refreshed'):
+            {"message": 'Não autorizado', "status_code": 401},
+        ('Invalid token', 'Signature has expired'):
+            {"message": 'Sessão inválida', "status_code": 419},
+        ('Authorization Required', 'Request does not contain an access token'):
+            {"message": 'Não autorizado', "status_code": 401}
+    }
+    current_app.logger.error(str(err))
+    error = ERRORS.get(err.args)
+    if error:
+        return jsonify({"mensagem": error['message']}), error['status_code']
+    else:
+        return jsonify({"mensagem": error.error}), error.status_code
