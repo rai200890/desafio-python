@@ -90,14 +90,16 @@ def test_get_existent_user_expired_token(api_test_client, user_with_expired_toke
 
 
 def test_get_existent_user_refreshed_token(api_test_client, user, session):
-    old_token = user.token
+    import copy
+    old_token = copy.deepcopy(user.token)
     api_test_client.post('/api/auth',
                          data=json.dumps({'email': user.email, 'password': 'farofa'}),
                          headers={"content-type": "application/json"})
+
+
     response = api_test_client.get('/api/users/{}'.format(user.id),
                                    headers={"Authorization": "Bearer {}".format(old_token)})
     data = json.loads(response.data.decode('utf-8'))
-
     assert response.status_code == 401
     assert data == {"mensagem": 'Não autorizado'}
 

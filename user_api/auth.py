@@ -2,8 +2,7 @@ from datetime import datetime
 
 from flask import (
     current_app,
-    jsonify,
-    request
+    jsonify
 )
 from jwt import encode
 from flask_jwt import JWTError
@@ -46,7 +45,7 @@ def generate_jwt_token(identity):
 def generate_auth_response(access_token, identity):
     try:
         user = User.query.get(identity.id)
-        user.token = access_token
+        user.token = access_token.decode('utf-8')
         user.last_login_at = datetime.utcnow()
         db.session.add(user)
         db.session.commit()
@@ -65,12 +64,6 @@ def load_identity(payload):
     user_id = payload['identity']
     try:
         user = User.query.filter_by(id=user_id).one()
-
-        token = request.headers.get('Authorization', '').\
-            replace(current_app.config['JWT_AUTH_HEADER_PREFIX'], '').replace(' ', '')
-        if token and user.token != token and request.path != current_app.config['JWT_AUTH_URL_RULE']:
-            raise JWTError('Invalid token', 'Token was refreshed')
-
         return user
     except SQLAlchemyError:
         current_app.logger.error('User with id {} not found'.format(user_id))
@@ -80,8 +73,6 @@ def generate_error_response(err):
     ERRORS = {
         ('Bad Request', 'Invalid credentials'):
             {"message": 'Usuário e/ou senha inválidos', "status_code": 401},
-        ('Invalid token', 'Token was refreshed'):
-            {"message": 'Não autorizado', "status_code": 401},
         ('Invalid token', 'Signature has expired'):
             {"message": 'Sessão inválida', "status_code": 419},
         ('Authorization Required', 'Request does not contain an access token'):

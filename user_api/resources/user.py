@@ -1,6 +1,9 @@
 from datetime import datetime
 
-from flask import current_app
+from flask import (
+    current_app,
+    request
+)
 from flask_jwt import jwt_required
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
@@ -23,7 +26,11 @@ class UserResource(Resource):
     @jwt_required()
     def get(self, id):
         user = User.query.filter_by(id=id).first()
+        token = request.headers.get('Authorization', '').\
+            replace(current_app.config['JWT_AUTH_HEADER_PREFIX'], '').replace(' ', '')
         if user:
+            if token and user.token != token:
+                return {"mensagem": "Não autorizado"}, 401
             return UserSchema().dump(user).data
         else:
             current_app.logger.warn('User with id {} not found'.format(id))
