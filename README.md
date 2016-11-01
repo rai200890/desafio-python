@@ -121,7 +121,7 @@ Exemplo:
 
 ### Perfil do usuário
 
-**GET** */users/id*
+**GET** */api/users/id*
 
 Exemplo:
 
@@ -131,7 +131,7 @@ Exemplo:
 
 ### Criação de usuário
 
-**POST** */users*
+**POST** */api/users*
 
 Exemplo:
 
