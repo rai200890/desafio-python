@@ -1,9 +1,10 @@
 from datetime import datetime
 
-from flask import current_app
+from flask import current_app, jsonify, abort
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
-from webargs.flaskparser import FlaskParser
+from webargs.flaskparser import use_kwargs, FlaskParser
+from marshmallow.exceptions import ValidationError
 
 from user_api.resources.schemas import (
     UserRequestSchema,
@@ -17,15 +18,9 @@ from user_api.models import (
 from user_api.auth import generate_jwt_token
 
 
-def error_handler(error):
-    raise error
-
-parser = FlaskParser(error_handler=error_handler)
-
-
 class UserResource(Resource):
 
-    @parser.use_kwargs(UserRequestSchema())
+    @use_kwargs(UserRequestSchema())
     def post(self, **kwargs):
         try:
             password = kwargs.pop('password')
@@ -38,11 +33,11 @@ class UserResource(Resource):
             user.hash_password(password)
             db.session.add(user)
             db.session.flush()
-            user.token = generate_jwt_token(user)
+            user.token = generate_jwt_token(user).decode('utf-8')
             user.last_login_at = datetime.utcnow()
             db.session.commit()
             return UserSchema().dump(user).data
-        except IntegrityError as e:
-            current_app.logger.error(e)
+        except IntegrityError as err:
             db.session.rollback()
-            raise e
+            current_app.logger.error(err)
+            return {"messagem": 'O usuario não pode ser criado'}, 422

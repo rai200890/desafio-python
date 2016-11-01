@@ -3,7 +3,7 @@ from datetime import timedelta
 
 import pytest
 
-from user_api.app import app as _app
+from user_api.app import user_api_app as _app
 from user_api import db as _db
 
 

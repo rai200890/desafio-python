@@ -58,7 +58,3 @@ class UserSchema(BaseUserSchema):
 
 class UserResponseSchema(Schema):
     users = fields.Nested(UserSchema)
-
-
-class ErrorsSchema(SelfSchema):
-    mensagem = fields.List(fields.String(), attribute="self")
